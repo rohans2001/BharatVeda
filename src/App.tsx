@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   BookOpen, 
   Crown, 
@@ -12,10 +12,279 @@ import {
   ChevronRight,
   Clock,
   MapPin,
-  Play
+  Play,
+  Filter,
+  ArrowRight,
+  ArrowUp
 } from 'lucide-react';
 
-const Navigation = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () => void }) => {
+// Search data structure
+const searchData = [
+  // Scriptures
+  { id: 1, title: "Bhagavad Gita", category: "Scriptures", description: "Sacred dialogue between Prince Arjuna and Krishna on duty and righteousness", keywords: ["krishna", "arjuna", "dharma", "yoga", "spiritual", "philosophy"] },
+  { id: 2, title: "Rigveda", category: "Scriptures", description: "Oldest collection of Vedic Sanskrit hymns dedicated to various deities", keywords: ["vedas", "hymns", "sanskrit", "ancient", "rituals", "mantras"] },
+  { id: 3, title: "Upanishads", category: "Scriptures", description: "Philosophical texts exploring the nature of reality and consciousness", keywords: ["philosophy", "consciousness", "reality", "brahman", "atman", "meditation"] },
+  { id: 4, title: "Ramayana", category: "Scriptures", description: "Epic tale of Prince Rama's journey and victory over evil", keywords: ["rama", "sita", "hanuman", "epic", "dharma", "devotion"] },
+  { id: 5, title: "Mahabharata", category: "Scriptures", description: "Greatest epic of ancient India containing the Bhagavad Gita", keywords: ["epic", "kurukshetra", "pandavas", "kauravas", "dharma", "war"] },
+  
+  // Dynasties
+  { id: 6, title: "Mauryan Empire", category: "Dynasties", description: "First pan-Indian empire founded by Chandragupta Maurya", keywords: ["chandragupta", "ashoka", "empire", "maurya", "buddhism", "administration"] },
+  { id: 7, title: "Gupta Empire", category: "Dynasties", description: "Golden Age of India with flourishing arts, science, and culture", keywords: ["golden age", "arts", "science", "culture", "mathematics", "astronomy"] },
+  { id: 8, title: "Chola Dynasty", category: "Dynasties", description: "Maritime empire known for naval expeditions and temple architecture", keywords: ["chola", "maritime", "navy", "temples", "south india", "trade"] },
+  { id: 9, title: "Mughal Empire", category: "Dynasties", description: "Islamic empire that ruled much of India for over 300 years", keywords: ["mughal", "islamic", "architecture", "akbar", "shah jahan", "taj mahal"] },
+  { id: 10, title: "Vijayanagara Empire", category: "Dynasties", description: "South Indian empire known for its architectural marvels", keywords: ["vijayanagara", "south india", "hampi", "architecture", "krishna deva raya"] },
+  
+  // Architecture
+  { id: 11, title: "Dravidian Architecture", category: "Architecture", description: "South Indian temple architecture style with towering gopurams", keywords: ["dravidian", "temples", "gopuram", "south india", "stone carving"] },
+  { id: 12, title: "Nagara Architecture", category: "Architecture", description: "North Indian temple architecture characterized by curvilinear towers", keywords: ["nagara", "north india", "temples", "towers", "shikhara"] },
+  { id: 13, title: "Khajuraho Temples", category: "Architecture", description: "Medieval Hindu temples famous for their intricate sculptures", keywords: ["khajuraho", "temples", "sculptures", "medieval", "art", "chandela"] },
+  { id: 14, title: "Ajanta Caves", category: "Architecture", description: "Rock-cut Buddhist caves with exquisite paintings and sculptures", keywords: ["ajanta", "buddhist", "caves", "paintings", "rock cut", "art"] },
+  { id: 15, title: "Ellora Caves", category: "Architecture", description: "Rock-cut temples representing Hindu, Buddhist, and Jain traditions", keywords: ["ellora", "caves", "hindu", "buddhist", "jain", "kailasa"] },
+  
+  // Philosophy
+  { id: 16, title: "Advaita Vedanta", category: "Philosophy", description: "Non-dualistic school of Hindu philosophy founded by Adi Shankara", keywords: ["advaita", "vedanta", "shankara", "non-dualism", "brahman", "maya"] },
+  { id: 17, title: "Yoga Philosophy", category: "Philosophy", description: "System of physical, mental, and spiritual practices", keywords: ["yoga", "patanjali", "meditation", "asanas", "pranayama", "spiritual"] },
+  { id: 18, title: "Buddhist Philosophy", category: "Philosophy", description: "Teachings of Buddha on suffering, impermanence, and enlightenment", keywords: ["buddha", "buddhism", "enlightenment", "four noble truths", "eightfold path"] },
+  { id: 19, title: "Jain Philosophy", category: "Philosophy", description: "Ancient religion emphasizing non-violence and spiritual liberation", keywords: ["jainism", "ahimsa", "non-violence", "mahavira", "liberation", "karma"] },
+  { id: 20, title: "Samkhya Philosophy", category: "Philosophy", description: "Dualistic philosophical system analyzing consciousness and matter", keywords: ["samkhya", "dualism", "consciousness", "matter", "purusha", "prakriti"] },
+  
+  // Science
+  { id: 21, title: "Ancient Mathematics", category: "Science", description: "Contributions including zero, decimal system, and algorithms", keywords: ["mathematics", "zero", "decimal", "aryabhata", "brahmagupta", "algorithms"] },
+  { id: 22, title: "Ayurveda", category: "Science", description: "Traditional system of medicine focusing on holistic healing", keywords: ["ayurveda", "medicine", "healing", "herbs", "doshas", "charaka"] },
+  { id: 23, title: "Astronomy", category: "Science", description: "Advanced understanding of celestial movements and calendar systems", keywords: ["astronomy", "celestial", "calendar", "aryabhata", "planets", "mathematics"] },
+  { id: 24, title: "Metallurgy", category: "Science", description: "Advanced techniques in working with metals and alloys", keywords: ["metallurgy", "metals", "iron", "steel", "delhi pillar", "wootz"] },
+  { id: 25, title: "Surgery", category: "Science", description: "Ancient surgical techniques documented by Sushruta", keywords: ["surgery", "sushruta", "medical", "operations", "instruments", "plastic surgery"] },
+  
+  // Culture
+  { id: 26, title: "Classical Dance", category: "Culture", description: "Traditional dance forms like Bharatanatyam, Kathak, and others", keywords: ["dance", "bharatanatyam", "kathak", "classical", "performance", "art"] },
+  { id: 27, title: "Festivals", category: "Culture", description: "Rich tradition of celebrations marking seasons and deities", keywords: ["festivals", "diwali", "holi", "dussehra", "celebrations", "traditions"] },
+  { id: 28, title: "Music Traditions", category: "Culture", description: "Classical music systems including ragas and talas", keywords: ["music", "classical", "ragas", "talas", "instruments", "vocal"] },
+  { id: 29, title: "Art and Crafts", category: "Culture", description: "Traditional arts including painting, sculpture, and handicrafts", keywords: ["art", "crafts", "painting", "sculpture", "handicrafts", "traditional"] },
+  { id: 30, title: "Languages", category: "Culture", description: "Rich linguistic heritage including Sanskrit and regional languages", keywords: ["languages", "sanskrit", "literature", "poetry", "regional", "scripts"] }
+];
+
+interface SearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [results, setResults] = useState(searchData);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const categories = ['All', 'Scriptures', 'Dynasties', 'Architecture', 'Philosophy', 'Science', 'Culture'];
+
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const filtered = searchData.filter(item => {
+      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      const matchesSearch = searchTerm === '' || 
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      return matchesCategory && matchesSearch;
+    });
+    setResults(filtered);
+  }, [searchTerm, selectedCategory]);
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight.trim()) {
+      return text;
+    }
+    const regex = new RegExp(`(${highlight})`, 'gi');
+    const parts = text.split(regex);
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-200 text-yellow-900 px-1 rounded">
+          {part}
+        </span>
+      ) : part
+    );
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const iconMap: { [key: string]: any } = {
+      'Scriptures': BookOpen,
+      'Dynasties': Crown,
+      'Architecture': Building,
+      'Philosophy': Brain,
+      'Science': Microscope,
+      'Culture': Users
+    };
+    return iconMap[category] || BookOpen;
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex min-h-full items-start justify-center p-4 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-25 transition-opacity" onClick={onClose}></div>
+        
+        <div className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all mt-16">
+          {/* Header */}
+          <div className="border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Search JnanaSutra</h3>
+              <button
+                onClick={onClose}
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Search Input */}
+            <div className="mt-4 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search for scriptures, dynasties, architecture, philosophy..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+              />
+            </div>
+            
+            {/* Category Filters */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    selectedCategory === category
+                      ? 'bg-orange-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Results */}
+          <div className="max-h-96 overflow-y-auto px-6 py-4">
+            {results.length > 0 ? (
+              <div className="space-y-3">
+                <div className="text-sm text-gray-500 mb-4">
+                  {results.length} result{results.length !== 1 ? 's' : ''} found
+                </div>
+                {results.map((item) => {
+                  const IconComponent = getCategoryIcon(item.category);
+                  return (
+                    <div
+                      key={item.id}
+                      className="group p-4 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                            <IconComponent size={20} className="text-orange-600" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-base font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
+                              {highlightText(item.title, searchTerm)}
+                            </h4>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              {item.category}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-gray-600">
+                            {highlightText(item.description, searchTerm)}
+                          </p>
+                          <div className="mt-2 flex items-center text-orange-600 group-hover:text-orange-700">
+                            <span className="text-sm font-medium">Learn more</span>
+                            <ArrowRight size={14} className="ml-1 transform group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Search className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-4 text-sm font-medium text-gray-900">No results found</h3>
+                <p className="mt-2 text-sm text-gray-500">
+                  Try adjusting your search or category filter
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ScrollToTop = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      // Show button when page is scrolled down 80% or more
+      const scrolled = document.documentElement.scrollTop;
+      const maxHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrollPercentage = (scrolled / maxHeight) * 100;
+      
+      if (scrollPercentage > 80) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <button
+      onClick={scrollToTop}
+      className="fixed bottom-8 right-8 z-50 bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-orange-300"
+      aria-label="Scroll to top"
+    >
+      <ArrowUp size={24} />
+    </button>
+  );
+};
+
+interface NavigationProps {
+  isOpen: boolean;
+  toggleMenu: () => void;
+  isSearchOpen: boolean;
+  setIsSearchOpen: (open: boolean) => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ isOpen, toggleMenu, isSearchOpen, setIsSearchOpen }) => {
+  
   const navItems = [
     { name: 'Scriptures', icon: BookOpen, path: '/scriptures' },
     { name: 'Dynasties', icon: Crown, path: '/dynasties' },
@@ -31,12 +300,18 @@ const Navigation = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="text-2xl font-bold text-orange-600">
-                भारतवेद
-              </div>
-              <div className="ml-2 text-sm text-gray-600 font-medium">
-                BharatVeda
-              </div>
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="flex items-center hover:opacity-80 transition-opacity duration-200 cursor-pointer focus:outline-none rounded"
+                aria-label="Go to homepage"
+              >
+                <div className="text-2xl font-bold text-orange-600">
+                  ज्ञानसूत्र
+                </div>
+                <div className="ml-2 text-sm text-gray-600 font-medium">
+                  JnanaSutra
+                </div>
+              </button>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -50,7 +325,11 @@ const Navigation = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () =>
                   <span className="font-medium">{item.name}</span>
                 </a>
               ))}
-              <button className="p-2 text-gray-600 hover:text-orange-600 transition-colors">
+              <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2 text-gray-600 hover:text-orange-600 transition-colors"
+                aria-label="Search"
+              >
                 <Search size={20} />
               </button>
             </div>
@@ -79,10 +358,23 @@ const Navigation = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () =>
                   <span>{item.name}</span>
                 </a>
               ))}
+              <button
+                onClick={() => {
+                  setIsSearchOpen(true);
+                  toggleMenu();
+                }}
+                className="flex items-center space-x-2 py-2 text-gray-700 hover:text-orange-600 transition-colors w-full text-left"
+              >
+                <Search size={16} />
+                <span>Search</span>
+              </button>
             </div>
           </div>
         )}
       </nav>
+      
+      {/* Search Modal */}
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 };
@@ -95,8 +387,8 @@ const Hero = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-            <span className="text-orange-600">भारत</span>
-            <span className="text-red-600">वेद</span>
+            <span className="text-orange-600">ज्ञान</span>
+            <span className="text-red-600">सूत्र</span>
           </h1>
           <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
             Echoes of Ancient India
@@ -290,8 +582,27 @@ const FeaturedContent = () => {
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Cmd/Ctrl + K to open search
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        setIsSearchOpen(true);
+      }
+      // Escape to close search
+      if (event.key === 'Escape' && isSearchOpen) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchOpen]);
 
   const categories = [
     {
@@ -340,7 +651,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation isOpen={isMenuOpen} toggleMenu={toggleMenu} />
+      <Navigation 
+        isOpen={isMenuOpen} 
+        toggleMenu={toggleMenu}
+        isSearchOpen={isSearchOpen}
+        setIsSearchOpen={setIsSearchOpen}
+      />
       
       <Hero />
 
@@ -365,15 +681,25 @@ function App() {
 
       <Timeline />
       <FeaturedContent />
+      
+      {/* Global Search Modal */}
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
 
       <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
-              <div className="flex items-center mb-4">
-                <div className="text-2xl font-bold text-orange-400">भारतवेद</div>
-                <div className="ml-2 text-gray-400">BharatVeda</div>
-              </div>
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="flex items-center mb-4 hover:opacity-80 transition-opacity duration-200 cursor-pointer focus:outline-none rounded"
+                aria-label="Go to homepage"
+              >
+                <div className="text-2xl font-bold text-orange-400">ज्ञानसूत्र</div>
+                <div className="ml-2 text-gray-400">JnanaSutra</div>
+              </button>
               <p className="text-gray-400 mb-4 max-w-md">
                 Preserving and sharing the timeless wisdom of ancient Indian civilization 
                 for future generations worldwide.
@@ -406,7 +732,7 @@ function App() {
           </div>
           
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 BharatVeda. Dedicated to preserving ancient wisdom for modern minds.</p>
+            <p>&copy; 2025 JnanaSutra. Dedicated to preserving ancient wisdom for modern minds.</p>
           </div>
         </div>
       </footer>
