@@ -1,34 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Ancient Indian Color Palette */
+  --ochre-deep: #8B4513;
+  --gold-muted: #B8860B;
+  --orange-burnt: #CC5500;
+  --brown-sandalwood: #C4A484;
+  --maroon: #800000;
+  --indigo-deep: #2E0854;
+  --parchment: #F4F1E8;
+  --parchment-aged: #E8E0D0;
+  --stone-light: #D3C7B8;
+  --stone-dark: #8B7D6B;
+  --gold-accent: #D4AF37;
+  --bronze: #CD7F32;
+}
+
 @layer base {
   html {
-    font-family: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
-    line-height: 1.5;
+    font-family: 'Crimson Text', 'Noto Sans Devanagari', Georgia, serif;
+    line-height: 1.6;
+    scroll-behavior: smooth;
   }
   
   body {
     @apply antialiased;
+    background-color: var(--parchment);
+    background-image: 
+      radial-gradient(circle at 25px 25px, rgba(139, 69, 19, 0.03) 2px, transparent 2px),
+      radial-gradient(circle at 75px 75px, rgba(184, 134, 11, 0.02) 1px, transparent 1px);
+    background-size: 100px 100px;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    line-height: 1.2;
-    letter-spacing: -0.025em;
+    font-family: 'Cinzel', 'Noto Sans Devanagari', serif;
+    line-height: 1.3;
+    letter-spacing: 0.5px;
+    color: var(--maroon);
+  }
+  
+  p {
+    color: var(--ochre-deep);
+    line-height: 1.7;
   }
 }
 
 @layer components {
-  .gradient-text {
-    @apply bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent;
+  /* Parchment Background */
+  .bg-parchment {
+    background-color: var(--parchment);
+    background-image: 
+      linear-gradient(45deg, rgba(139, 69, 19, 0.02) 0%, transparent 20%),
+      radial-gradient(circle at 20% 20%, rgba(184, 134, 11, 0.03) 0%, transparent 30%),
+      radial-gradient(circle at 80% 80%, rgba(204, 85, 0, 0.02) 0%, transparent 30%);
   }
   
-  .shadow-soft {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  .bg-parchment-aged {
+    background-color: var(--parchment-aged);
+    background-image: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(139, 69, 19, 0.05) 2px,
+        rgba(139, 69, 19, 0.05) 4px
+      );
   }
   
-  .transition-smooth {
+  /* Stone Texture */
+  .bg-stone {
+    background: linear-gradient(135deg, var(--stone-light) 0%, var(--stone-dark) 100%);
+    background-image: 
+      radial-gradient(circle at 30% 20%, rgba(0,0,0,0.1) 1px, transparent 1px),
+      radial-gradient(circle at 70% 80%, rgba(255,255,255,0.1) 1px, transparent 1px);
+  }
+  
+  /* Ornamental Borders */
+  .border-ornate {
+    border: 2px solid var(--gold-muted);
+    border-image: repeating-linear-gradient(
+      45deg,
+      var(--gold-muted),
+      var(--gold-muted) 10px,
+      var(--bronze) 10px,
+      var(--bronze) 20px
+    ) 2;
+    position: relative;
+  }
+  
+  .border-ornate::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 1px solid var(--gold-accent);
+    border-radius: inherit;
+    z-index: -1;
+  }
+  
+  /* Manuscript Card Style */
+  .card-manuscript {
+    background: var(--parchment);
+    border: 1px solid var(--brown-sandalwood);
+    box-shadow: 
+      0 4px 8px rgba(139, 69, 19, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+  }
+  
+  .card-manuscript::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1px solid var(--gold-muted);
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0.3;
+  }
+  
+  /* Temple Arch Navigation */
+  .nav-temple {
+    background: linear-gradient(180deg, var(--stone-light) 0%, var(--stone-dark) 100%);
+    border-bottom: 3px solid var(--gold-muted);
+    position: relative;
+  }
+  
+  .nav-temple::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gold-accent) 0px,
+      var(--gold-accent) 20px,
+      var(--bronze) 20px,
+      var(--bronze) 40px
+    );
+  }
+  
+  /* Golden Glow Hover Effect */
+  .hover-golden {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-golden:hover {
+    box-shadow: 
+      0 0 20px rgba(212, 175, 55, 0.3),
+      0 4px 12px rgba(139, 69, 19, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  /* Mystical Gradient Text */
+  .text-mystical {
+    background: linear-gradient(135deg, var(--maroon) 0%, var(--gold-muted) 50%, var(--indigo-deep) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Ornamental Divider */
+  .divider-ornate {
+    position: relative;
+    text-align: center;
+    margin: 2rem 0;
+  }
+  
+  .divider-ornate::before {
+    content: '❋ ◆ ❋';
+    display: inline-block;
+    padding: 0 1rem;
+    background: var(--parchment);
+    color: var(--gold-muted);
+    font-size: 1.2rem;
+  }
+  
+  .divider-ornate::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--gold-muted) 20%,
+      var(--gold-muted) 80%,
+      transparent 100%
+    );
+    z-index: -1;
+  }
+  
+  /* Scroll Unfurl Animation */
+  .scroll-unfurl {
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    animation: unfurl 0.8s ease-out forwards;
+  }
+  
+  @keyframes unfurl {
+    0% {
+      opacity: 0;
+      transform: scaleY(0);
+    }
+    60% {
+      opacity: 0.8;
+      transform: scaleY(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+  
+  /* Ink Fade In */
+  .ink-fade {
+    opacity: 0;
+    animation: inkAppear 1s ease-out forwards;
+  }
+  
+  @keyframes inkAppear {
+    0% {
+      opacity: 0;
+      filter: blur(1px);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0);
+    }
   }
 }
 
@@ -36,85 +248,83 @@
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Ancient Colors */
+  .text-ochre { color: var(--ochre-deep); }
+  .text-gold { color: var(--gold-muted); }
+  .text-burnt-orange { color: var(--orange-burnt); }
+  .text-sandalwood { color: var(--brown-sandalwood); }
+  .text-maroon { color: var(--maroon); }
+  .text-indigo { color: var(--indigo-deep); }
+  
+  .bg-ochre { background-color: var(--ochre-deep); }
+  .bg-gold { background-color: var(--gold-muted); }
+  .bg-burnt-orange { background-color: var(--orange-burnt); }
+  .bg-sandalwood { background-color: var(--brown-sandalwood); }
+  .bg-maroon { background-color: var(--maroon); }
+  .bg-indigo { background-color: var(--indigo-deep); }
 }
 
-/* Custom scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  background: var(--parchment-aged);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-orange-300 rounded-full;
+  background: linear-gradient(180deg, var(--gold-muted) 0%, var(--bronze) 100%);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-orange-400;
+  background: linear-gradient(180deg, var(--gold-accent) 0%, var(--gold-muted) 100%);
 }
 
-/* Smooth scroll behavior */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Focus states for accessibility */
+/* Focus States */
 button:focus-visible,
 a:focus-visible {
-  @apply outline-2 outline-offset-2 outline-orange-600;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--gold-accent);
 }
 
-/* Animation for hero elements */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Remove focus borders on hover */
+button:hover,
+a:hover {
+  outline: none;
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+/* Remove default focus styles */
+*:focus {
+  outline: none;
 }
 
-/* Hover effects for cards */
-.hover-lift {
-  @apply transition-all duration-300 ease-out;
-}
-
-.hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-/* Sanskrit/Devanagari text styling */
+/* Sanskrit/Devanagari Enhanced */
 .devanagari {
   font-family: 'Noto Sans Devanagari', serif;
   font-feature-settings: 'kern' 1;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(139, 69, 19, 0.1);
 }
 
-/* Responsive text sizing */
+/* Typography Improvements */
+.text-serif {
+  font-family: 'Crimson Text', Georgia, serif;
+}
+
+.text-display {
+  font-family: 'Cinzel', serif;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 640px) {
   .hero-title {
     font-size: 2.5rem;
   }
-}
-
-/* Loading animation */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+  
+  .nav-temple::after {
+    height: 1px;
   }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
