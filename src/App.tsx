@@ -123,7 +123,7 @@ const Hero = () => {
 
 const CategoryCard = ({ icon: Icon, title, description, count, gradient }: any) => {
   return (
-    <div className="relative overflow-hidden rounded-xl text-white transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group">
+    <div className="relative h-64 overflow-hidden rounded-xl text-white transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group">
       <div className="absolute inset-0">
         <img 
           src={getCategoryImage(title)}
